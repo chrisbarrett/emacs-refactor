@@ -27,22 +27,55 @@
 
 (require 'emr)
 
-(emr-declare-command 'comment-region
-  :title "comment"
-  :description "region"
-  :modes 'prog-mode
-  :predicate (lambda ()
-               (region-active-p)))
+(defun emr-lsp-format-buffer ()
+  "Format buffer"
+  (interactive)
+  (lsp-format-buffer))
 
-(emr-declare-command 'uncomment-region
-  :title "uncomment"
-  :description "region"
+(defun emr-lsp-format-region (start end)
+  "Format region (START END)."
+  (interactive "rp")
+  (lsp-format-region start end))
+
+(emr-declare-command 'emr-lsp-format-region
+  :title "format region"
+  :description "with lsp"
   :modes 'prog-mode
   :predicate (lambda ()
-               (and (region-active-p)
-                    (s-contains? comment-start
-                                 (buffer-substring (region-beginning)
-                                                   (region-end))))))
+               (and
+                (bound-and-true-p lsp-mode)
+                (or (lsp--capability "documentRangeFormattingProvider")
+                    (lsp--registered-capability "textDocument/rangeFormatting"))
+                mark-active (not (equal (mark) (point))))))
+
+(emr-declare-command 'emr-lsp-format-buffer
+  :title "format buffer"
+  :description "with lsp"
+  :modes 'prog-mode
+  :predicate (lambda ()
+               (and
+                (bound-and-true-p lsp-mode)
+                (or (lsp--capability "documentFormattingProvider")
+                    (lsp--registered-capability "textDocument/formatting"))
+                (not mark-active))))
+
+
+;; lsp...
+(defun emr-lsp-rename (newname)
+  "Rename with lsp."
+  (interactive (list (read-string "Rename to: " (thing-at-point 'symbol))))
+  (lsp-rename newname))
+
+(emr-declare-command 'emr-lsp-rename
+  :title "rename"
+  :description "with lsp"
+  :modes '(prog-mode)
+  :predicate (lambda ()
+               (and (bound-and-true-p lsp-mode)
+                    (lsp--capability "renameProvider")
+                    (emr-el:looking-at-symbol-p)
+                    (not mark-active))))
+
 
 (provide 'emr-prog)
 

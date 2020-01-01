@@ -337,7 +337,12 @@ Return a popup item for the refactoring menu if so."
   (eval-after-load 'scheme        '(require 'emr-scheme))
   (eval-after-load 'js2-refactor  '(require 'emr-js))
   (eval-after-load 'ruby-refactor '(require 'emr-ruby))
-  (eval-after-load 'css-mode      '(require 'emr-css)))
+  (eval-after-load 'css-mode      '(require 'emr-css))
+  (eval-after-load 'python        '(require 'emr-python))
+  (eval-after-load 'org           '(require 'emr-org))
+  )
+
+(fboundp 'python-mode)
 
 (provide 'emr)
 
