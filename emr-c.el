@@ -279,7 +279,7 @@ Uses either clang-format, if available, or `emr-c-format-fallback-func.'"
                  "with the value of emr-c-format-fallback-func")
   :modes '(c-mode c++-mode)
   :predicate (lambda ()
-               (and (not (bound-and-true-p lsp-mode))
+               (and (emr--lsp-support-formatting)
                     (emr-region-active?))))
 
 (emr-declare-command 'emr-cc-format-buffer
@@ -289,7 +289,7 @@ Uses either clang-format, if available, or `emr-c-format-fallback-func.'"
                  "with the value of emr-c-format-fallback-func")
   :modes '(c-mode c++-mode)
   :predicate (lambda ()
-               (and (not (bound-and-true-p lsp-mode))
+               (and (emr--lsp-support-formatting)
                     (not (emr-region-active?)))))
 
 (emr-declare-command 'emr-cc-surround-if-end

@@ -27,6 +27,20 @@
 
 (require 'emr)
 
+
+(defun emr--lsp-support-formatting ()
+  "Check is lsp is enabled."
+  (and
+   (bound-and-true-p lsp-mode)
+   (or (lsp--capability "documentRangeFormattingProvider")
+       (lsp--registered-capability "textDocument/rangeFormatting"))))
+
+(defun emr--lsp-support-rename ()
+  "Check is lsp is enabled."
+  (and
+   (bound-and-true-p lsp-mode)
+   (lsp--capability "renameProvider")))
+
 (defun emr-lsp-format-buffer ()
   "Format buffer"
   (interactive)
@@ -43,9 +57,8 @@
   :modes 'prog-mode
   :predicate (lambda ()
                (and
+                (emr--lsp-support-formatting)
                 (bound-and-true-p lsp-mode)
-                (or (lsp--capability "documentRangeFormattingProvider")
-                    (lsp--registered-capability "textDocument/rangeFormatting"))
                 mark-active (not (equal (mark) (point))))))
 
 (emr-declare-command 'emr-lsp-format-buffer
@@ -54,9 +67,7 @@
   :modes 'prog-mode
   :predicate (lambda ()
                (and
-                (bound-and-true-p lsp-mode)
-                (or (lsp--capability "documentFormattingProvider")
-                    (lsp--registered-capability "textDocument/formatting"))
+                (emr--lsp-support-formatting)
                 (not mark-active))))
 
 
