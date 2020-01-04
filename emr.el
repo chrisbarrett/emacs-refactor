@@ -342,8 +342,6 @@ Return a popup item for the refactoring menu if so."
   (eval-after-load 'org           '(require 'emr-org))
   )
 
-(fboundp 'python-mode)
-
 (provide 'emr)
 
 ;;; emr.el ends here
