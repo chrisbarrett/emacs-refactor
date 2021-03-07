@@ -235,6 +235,32 @@ Uses either clang-format, if available, or `emr-c-format-fallback-func.'"
   "Return nil if a valid region is active."
   (not (emr-region-active?)))
 
+
+(defvar emr-cpp-namespace nil "List of namespaces.")
+
+(defun emr-cpp-move-to-namespace (start end)
+  "Move content between START & END into a namespace."
+  (interactive "rp")
+  (let ((content (buffer-substring-no-properties start end))
+        (ns (completing-read "namespace: " emr-cpp-namespace)))
+    (unless ns
+      (error "No namespace provide"))
+
+    (add-to-list 'emr-cpp-namespace ns)
+
+    (save-excursion
+      (delete-region start end)
+      (insert (format "namespace %s {" ns))
+      (insert content)
+      (insert "}")
+      (emr-cc-format-region start (point)))))
+
+(emr-declare-command 'emr-cpp-move-to-namespace
+                     :title "with namespace"
+                     :description "move to namespace"
+                     :modes '(c++-mode)
+                     :predicate (lambda ()
+                                  (and mark-active (not (equal (mark) (point))))))
 ; ------------------
 
 ;;; EMR Declarations
@@ -252,7 +278,9 @@ Uses either clang-format, if available, or `emr-c-format-fallback-func.'"
                    "with clang"
                  "with the value of emr-c-format-fallback-func")
   :modes '(c-mode c++-mode)
-  :predicate 'emr-region-active?)
+  :predicate (lambda ()
+               (and (not (emr--lsp-support-formatting))
+                    (emr-region-active?))))
 
 (emr-declare-command 'emr-cc-format-buffer
   :title "format buffer"
@@ -260,7 +288,9 @@ Uses either clang-format, if available, or `emr-c-format-fallback-func.'"
                    "with clang"
                  "with the value of emr-c-format-fallback-func")
   :modes '(c-mode c++-mode)
-  :predicate 'emr-region-inactive?)
+  :predicate (lambda ()
+               (and (not (emr--lsp-support-formatting))
+                    (not (emr-region-active?)))))
 
 (emr-declare-command 'emr-cc-surround-if-end
   :title "surround"
